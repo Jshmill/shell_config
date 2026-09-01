@@ -5,7 +5,7 @@ wezterm.on("window-focus-changed", function(window, pane)
 	local overrides = window:get_config_overrides() or {}
 
 	if window:is_focused() then
-		overrides.window_background_opacity = 0.85
+		overrides.window_background_opacity = 0.8
 	else
 		overrides.window_background_opacity = 0.7
 	end
@@ -23,9 +23,9 @@ return {
 	-- Font and theme
 	font = wezterm.font("Fira Code"),
 	font_size = 14.0,
-	-- color_scheme = "Catppuccin Mocha",
+	color_scheme = "Catppuccin Mocha",
 	-- color_scheme = "Rebecca (base16)",
-	color_scheme = "Rosé Pine Moon (base16)",
+	-- color_scheme = "Rosé Pine Moon (base16)",
 	-- color_scheme = "Gruvbox Dark (base16)",
 	--
 	-- NOTE: LIGHTMODE
@@ -55,9 +55,9 @@ return {
 		{ key = "w", mods = "CMD", action = act.CloseCurrentPane({ confirm = false }) },
 		-- Clear terminal
 		{
-			key = "k",
+			key = "o",
 			mods = "CMD",
-			action = wezterm.action.ClearScrollback("ScrollbackAndViewport"),
+			action = act.SendString("\x0c"),
 		},
 	},
 

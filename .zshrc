@@ -62,13 +62,6 @@ export JAVA_HOME=$(/usr/libexec/java_home -v 17)
 
 # Conda (lazy only)
 __conda_loaded=0
-ca() {
-  if [ "$__conda_loaded" -eq 0 ]; then
-    source /opt/homebrew/Caskroom/miniconda/base/etc/profile.d/conda.sh
-    __conda_loaded=1
-  fi
-  conda activate "$1"
-}
 
 
 ##############################
@@ -88,6 +81,8 @@ alias chad="NVIM_APPNAME=nvim-nvchad nvim"
 
 # late.sh
 alias latessh="ssh -i ~/.ssh/late_throwaway late.sh"
+
+alias server="python3 -m http.server"
 
 
 ##############################
@@ -115,3 +110,20 @@ ZSH_HIGHLIGHT_STYLES[variable]='fg=#94e2d5'
 eval "$(starship init zsh)"
 
 eval "$(~/.local/bin/mise activate zsh)"
+eval "$(fnm env)"
+
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+__conda_setup="$('/opt/homebrew/Caskroom/miniconda/base/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__conda_setup"
+else
+    if [ -f "/opt/homebrew/Caskroom/miniconda/base/etc/profile.d/conda.sh" ]; then
+        . "/opt/homebrew/Caskroom/miniconda/base/etc/profile.d/conda.sh"
+    else
+        export PATH="/opt/homebrew/Caskroom/miniconda/base/bin:$PATH"
+    fi
+fi
+unset __conda_setup
+# <<< conda initialize <<<
+
