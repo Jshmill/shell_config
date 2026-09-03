@@ -5,7 +5,7 @@ wezterm.on("window-focus-changed", function(window, pane)
 	local overrides = window:get_config_overrides() or {}
 
 	if window:is_focused() then
-		overrides.window_background_opacity = 0.9
+		overrides.window_background_opacity = 0.8
 	else
 		overrides.window_background_opacity = 0.6
 	end
@@ -47,13 +47,15 @@ wezterm.on('theme-picker', function(window, pane)
       title = 'Select Theme',
       fuzzy = true,
       choices = choices,
-      action = wezterm.action_callback(function(win, _, _, label)
-        if label then
-          win:set_config_overrides {
-            color_scheme = label,
-          }
-        end
-      end),
+        action = wezterm.action_callback(function(win, _, _, label)
+            if label then
+                local overrides = win:get_config_overrides() or {}
+
+                overrides.color_scheme = label
+
+                win:set_config_overrides(overrides)
+            end
+        end),
     },
     pane
   )
