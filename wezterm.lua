@@ -28,44 +28,81 @@ wezterm.on("smart-cmd-o", function(window, pane)
 	)
 end)
 
-wezterm.on('theme-picker', function(window, pane)
-	local choices = {
-		"Catppuccin Mocha",
-		"Rebecca (base16)",
-		"Rosé Pine Moon (base16)",
-		"nordfox",
-		"Everforest Dark (Gogh)",
-		"Gruvbox Dark (base16)",
-		"Github",
-	}
+-- Map wezterm color_scheme name -> neovim colorscheme name.
+-- Edit the right-hand side to match whatever colorscheme plugins you have
+-- installed in neovim.
+local nvim_theme_map = {
+	["Catppuccin Mocha"] = "catppuccin-mocha",
+	["Rebecca (base16)"] = "base16-rebecca",
+	["Rosé Pine Moon (base16)"] = "rose-pine-moon",
+	["nordfox"] = "nord",
+	["Everforest Dark (Gogh)"] = "everforest",
+	["Gruvbox Dark (base16)"] = "gruvbox",
+	["Github"] = "github_light",
+	["tokyonight-storm"] = "tokyonight",
+}
+
+local theme_state_file = os.getenv("HOME") .. "/.cache/wezterm-nvim-theme"
+
+local function write_theme_state(nvim_theme)
+	local f = io.open(theme_state_file, "w")
+	if f then
+		f:write(nvim_theme)
+		f:close()
+	end
+end
+
+-- Push the colorscheme change into every currently running nvim pane,
+-- across all tabs and windows.
+local function sync_nvim_panes(nvim_theme)
+	local mux = wezterm.mux
+	for _, mux_win in ipairs(mux.all_windows()) do
+		for _, tab in ipairs(mux_win:tabs()) do
+			for _, pane in ipairs(tab:panes()) do
+				local process = pane:get_foreground_process_name() or ""
+				if process:match("[/\\]n?vim$") then
+					-- Esc to leave insert/visual mode, run the command, then Enter
+					pane:send_text("\x1b:colorscheme " .. nvim_theme .. "\r")
+				end
+			end
+		end
+	end
+end
+
+wezterm.on("theme-picker", function(window, pane)
+	local choices = {}
+	for name, _ in pairs(nvim_theme_map) do
+		table.insert(choices, name)
+	end
+	table.sort(choices)
 
 	local formatted_choices = {}
-
 	for _, name in ipairs(choices) do
-		table.insert(formatted_choices, {
-			label = name,
-		})
+		table.insert(formatted_choices, { label = name })
 	end
 
 	window:perform_action(
-		act.InputSelector {
-			title = 'Select Theme',
+		act.InputSelector({
+			title = "Select Theme",
 			fuzzy = true,
 			choices = formatted_choices,
 			action = wezterm.action_callback(function(win, _, _, label)
-				if label then
-					local overrides = win:get_config_overrides() or {}
+				if not label then
+					return
+				end
 
-                    overrides.color_scheme = label
-                    win:set_config_overrides(overrides)
+				local overrides = win:get_config_overrides() or {}
+				overrides.color_scheme = label
+				win:set_config_overrides(overrides)
+				win:perform_action(wezterm.action.ReloadConfiguration, pane)
 
-                    win:perform_action(
-                        wezterm.action.ReloadConfiguration,
-                        pane
-                    )
+				local nvim_theme = nvim_theme_map[label]
+				if nvim_theme then
+					write_theme_state(nvim_theme)
+					sync_nvim_panes(nvim_theme)
 				end
 			end),
-		},
+		}),
 		pane
 	)
 end)
