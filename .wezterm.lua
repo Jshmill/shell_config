@@ -5,30 +5,88 @@ wezterm.on("window-focus-changed", function(window, pane)
 	local overrides = window:get_config_overrides() or {}
 
 	if window:is_focused() then
-		overrides.window_background_opacity = 0.8
+		overrides.window_background_opacity = 0.9
 	else
-		overrides.window_background_opacity = 0.7
+		overrides.window_background_opacity = 0.6
 	end
 
 	window:set_config_overrides(overrides)
+end)
+
+-- Block the CMD+O keybinding from clearing the scrollback when in vim/neovim
+wezterm.on("smart-cmd-o", function(window, pane)
+	local process = pane:get_foreground_process_name() or ""
+
+	-- Don't clear scrollback if we're in vim/neovim
+	if process:match("[/\\]n?vim$") then
+		return
+	end
+
+	window:perform_action(
+		act.ClearScrollback("ScrollbackAndViewport"),
+		pane
+	)
+end)
+
+wezterm.on('theme-picker', function(window, pane)
+  local schemes = wezterm.get_builtin_color_schemes()
+  local choices = {}
+
+  for name, _ in pairs(schemes) do
+    table.insert(choices, {
+      label = name,
+    })
+  end
+
+  table.sort(choices, function(a, b)
+    return a.label < b.label
+  end)
+
+  window:perform_action(
+    act.InputSelector {
+      title = 'Select Theme',
+      fuzzy = true,
+      choices = choices,
+      action = wezterm.action_callback(function(win, _, _, label)
+        if label then
+          win:set_config_overrides {
+            color_scheme = label,
+          }
+        end
+      end),
+    },
+    pane
+  )
 end)
 
 return {
 	automatically_reload_config = true,
 	-- Window appearance
 	window_decorations = "RESIZE", -- hides the title bar buttons
-	macos_window_background_blur = 30, -- frosted glass effect
+	macos_window_background_blur = 40, -- frosted glass effect
 	hide_tab_bar_if_only_one_tab = true, -- hides tab bar when not needed
 	tab_bar_at_bottom = true, -- moves the tab bar to the bottom of the window
+    window_close_confirmation = "NeverPrompt",
+
+    -----------------
 	-- Font and theme
+    -----------------
 	font = wezterm.font("Fira Code"),
 	font_size = 14.0,
-	color_scheme = "Catppuccin Mocha",
+
+    --------------------
+    -- DARK MODE
+    --------------------
+	-- color_scheme = "Catppuccin Mocha",
 	-- color_scheme = "Rebecca (base16)",
 	-- color_scheme = "Rosé Pine Moon (base16)",
+    color_scheme = "nordfox",
+    -- color_scheme = 'Everforest Dark (Gogh)',
 	-- color_scheme = "Gruvbox Dark (base16)",
-	--
-	-- NOTE: LIGHTMODE
+
+    --------------------
+    -- LIGHT MODE
+    --------------------
 	-- color_scheme = "Github",
 
 	-- Initial window size and position
@@ -57,8 +115,18 @@ return {
 		{
 			key = "o",
 			mods = "CMD",
-			action = act.SendString("\x0c"),
+            action = act.EmitEvent("smart-cmd-o"),
 		},
+        {
+            key = 'o',
+            mods = 'CMD|SHIFT',
+            action = wezterm.action.TogglePaneZoomState,
+        },
+        {
+        key = "t",
+        mods = "CMD|SHIFT",
+        action = act.EmitEvent("theme-picker"),
+        },
 	},
 
 	colors = {
