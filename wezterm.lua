@@ -56,9 +56,13 @@ wezterm.on('theme-picker', function(window, pane)
 				if label then
 					local overrides = win:get_config_overrides() or {}
 
-					overrides.color_scheme = label
+                    overrides.color_scheme = label
+                    win:set_config_overrides(overrides)
 
-					win:set_config_overrides(overrides)
+                    win:perform_action(
+                        wezterm.action.ReloadConfiguration,
+                        pane
+                    )
 				end
 			end),
 		},
