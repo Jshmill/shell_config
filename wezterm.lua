@@ -29,36 +29,41 @@ wezterm.on("smart-cmd-o", function(window, pane)
 end)
 
 wezterm.on('theme-picker', function(window, pane)
-  local schemes = wezterm.get_builtin_color_schemes()
-  local choices = {}
+	local choices = {
+		"Catppuccin Mocha",
+		"Rebecca (base16)",
+		"Rosé Pine Moon (base16)",
+		"nordfox",
+		"Everforest Dark (Gogh)",
+		"Gruvbox Dark (base16)",
+		"Github",
+	}
 
-  for name, _ in pairs(schemes) do
-    table.insert(choices, {
-      label = name,
-    })
-  end
+	local formatted_choices = {}
 
-  table.sort(choices, function(a, b)
-    return a.label < b.label
-  end)
+	for _, name in ipairs(choices) do
+		table.insert(formatted_choices, {
+			label = name,
+		})
+	end
 
-  window:perform_action(
-    act.InputSelector {
-      title = 'Select Theme',
-      fuzzy = true,
-      choices = choices,
-        action = wezterm.action_callback(function(win, _, _, label)
-            if label then
-                local overrides = win:get_config_overrides() or {}
+	window:perform_action(
+		act.InputSelector {
+			title = 'Select Theme',
+			fuzzy = true,
+			choices = formatted_choices,
+			action = wezterm.action_callback(function(win, _, _, label)
+				if label then
+					local overrides = win:get_config_overrides() or {}
 
-                overrides.color_scheme = label
+					overrides.color_scheme = label
 
-                win:set_config_overrides(overrides)
-            end
-        end),
-    },
-    pane
-  )
+					win:set_config_overrides(overrides)
+				end
+			end),
+		},
+		pane
+	)
 end)
 
 return {
@@ -134,13 +139,14 @@ return {
 	colors = {
 		tab_bar = {
 			active_tab = {
-				bg_color = "#1A1826",
+				bg_color = "NONE",
 				fg_color = "#BAC2DE",
 			},
 			inactive_tab = {
-				bg_color = "#45475A",
+				bg_color = "NONE",
 				fg_color = "#F5E0DC",
 			},
 		},
 	},
 }
+
