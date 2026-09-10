@@ -1,3 +1,5 @@
+
+
 local wezterm = require("wezterm")
 local act = wezterm.action
 
@@ -5,7 +7,7 @@ wezterm.on("window-focus-changed", function(window, pane)
 	local overrides = window:get_config_overrides() or {}
 
 	if window:is_focused() then
-		overrides.window_background_opacity = 0.8
+		overrides.window_background_opacity = 0.9
 	else
 		overrides.window_background_opacity = 0.6
 	end
@@ -37,9 +39,10 @@ local nvim_theme_map = {
 	["Rosé Pine Moon (base16)"] = "rose-pine-moon",
 	["nordfox"] = "nord",
 	["Everforest Dark (Gogh)"] = "everforest",
-	["Gruvbox Dark (base16)"] = "gruvbox",
-	["Github"] = "github_light",
+	["Gruvbox dark, hard (base16)"] = "gruvbox-material",
+	["Github"] = "github_light_high_contrast",
 	["tokyonight-storm"] = "tokyonight",
+    ["nightfox"] = "night-owl"
 }
 
 local theme_state_file = os.getenv("HOME") .. "/.cache/wezterm-nvim-theme"
@@ -115,12 +118,16 @@ return {
 	hide_tab_bar_if_only_one_tab = true, -- hides tab bar when not needed
 	tab_bar_at_bottom = true, -- moves the tab bar to the bottom of the window
     window_close_confirmation = "NeverPrompt",
+    inactive_pane_hsb = {
+    saturation = 0.7,
+    brightness = 0.8,
+    },
 
     -----------------
 	-- Font and theme
     -----------------
 	font = wezterm.font("Fira Code"),
-	font_size = 14.0,
+	font_size = 15.0,
 
     --------------------
     -- DARK MODE
@@ -190,4 +197,5 @@ return {
 		},
 	},
 }
+
 
