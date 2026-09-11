@@ -1,5 +1,3 @@
-
-
 local wezterm = require("wezterm")
 local act = wezterm.action
 
@@ -34,7 +32,7 @@ end)
 -- Edit the right-hand side to match whatever colorscheme plugins you have
 -- installed in neovim.
 local nvim_theme_map = {
-	["Catppuccin Mocha"] = "catppuccin-mocha",
+	["Catppuccin Macchiato"] = "catppuccin-frappe",
 	["Rebecca (base16)"] = "base16-rebecca",
 	["Rosé Pine Moon (base16)"] = "rose-pine-moon",
 	["nordfox"] = "nord",
@@ -127,7 +125,9 @@ return {
 	-- Font and theme
     -----------------
 	font = wezterm.font("Fira Code"),
-	font_size = 15.0,
+	-- font = wezterm.font("JetBrains Mono"),
+	font_size = 16.0,
+    
 
     --------------------
     -- DARK MODE
@@ -197,5 +197,6 @@ return {
 		},
 	},
 }
+
 
 
