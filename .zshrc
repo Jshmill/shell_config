@@ -77,6 +77,7 @@ alias cat='bat'
 
 # Neovim profiles
 alias lazy="NVIM_APPNAME=nvim-lazy nvim"
+alias nvim="NVIM_APPNAME=nvim-lazy nvim"
 alias chad="NVIM_APPNAME=nvim-nvchad nvim"
 
 # late.sh
