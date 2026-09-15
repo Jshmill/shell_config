@@ -1,3 +1,4 @@
+
 local wezterm = require("wezterm")
 local act = wezterm.action
 
@@ -32,7 +33,7 @@ end)
 -- Edit the right-hand side to match whatever colorscheme plugins you have
 -- installed in neovim.
 local nvim_theme_map = {
-	["Catppuccin Macchiato"] = "catppuccin-frappe",
+	["Catppuccin Mocha"] = "catppuccin-mocha",
 	["Rebecca (base16)"] = "base16-rebecca",
 	["Rosé Pine Moon (base16)"] = "rose-pine-moon",
 	["nordfox"] = "nord",
@@ -52,6 +53,29 @@ local function write_theme_state(nvim_theme)
 		f:close()
 	end
 end
+
+
+
+local wezterm = require("wezterm")
+
+wezterm.on("format-tab-title", function(tab)
+  local proc = tab.active_pane.foreground_process_name or ""
+
+  -- Only customize tabs running nvim
+  if proc:match("n?vim$") then
+    local cwd = tab.active_pane.current_working_dir
+
+    if cwd then
+      local dir = cwd.file_path:match("([^/\\]+)$")
+      return " " .. dir .. " "
+    end
+  end
+
+  -- Default behavior for everything else
+  return tab.active_pane.title
+end)
+
+
 
 -- Push the colorscheme change into every currently running nvim pane,
 -- across all tabs and windows.
@@ -114,8 +138,11 @@ return {
 	window_decorations = "RESIZE", -- hides the title bar buttons
 	macos_window_background_blur = 40, -- frosted glass effect
 	hide_tab_bar_if_only_one_tab = true, -- hides tab bar when not needed
+    show_tab_index_in_tab_bar = false,
 	tab_bar_at_bottom = true, -- moves the tab bar to the bottom of the window
+    use_fancy_tab_bar = true,
     window_close_confirmation = "NeverPrompt",
+    show_new_tab_button_in_tab_bar = false,
     inactive_pane_hsb = {
     saturation = 0.7,
     brightness = 0.8,
@@ -126,16 +153,15 @@ return {
     -----------------
 	font = wezterm.font("Fira Code"),
 	-- font = wezterm.font("JetBrains Mono"),
-	font_size = 16.0,
-    
+	font_size = 17.0,
 
     --------------------
     -- DARK MODE
     --------------------
-	-- color_scheme = "Catppuccin Mocha",
+	color_scheme = "Catppuccin Mocha",
 	-- color_scheme = "Rebecca (base16)",
 	-- color_scheme = "Rosé Pine Moon (base16)",
-    color_scheme = "nordfox",
+    -- color_scheme = "nordfox",
     -- color_scheme = 'Everforest Dark (Gogh)',
 	-- color_scheme = "Gruvbox Dark (base16)",
 
@@ -186,13 +212,14 @@ return {
 
 	colors = {
 		tab_bar = {
+            background = "NONE",
 			active_tab = {
 				bg_color = "NONE",
-				fg_color = "#BAC2DE",
+				fg_color = "#cba6f7",
 			},
 			inactive_tab = {
 				bg_color = "NONE",
-				fg_color = "#F5E0DC",
+				fg_color = "#b4befe",
 			},
 		},
 	},
