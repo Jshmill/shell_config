@@ -1,3 +1,5 @@
+
+
 local wezterm = require("wezterm")
 local act = wezterm.action
 
@@ -5,7 +7,7 @@ wezterm.on("window-focus-changed", function(window, pane)
 	local overrides = window:get_config_overrides() or {}
 
 	if window:is_focused() then
-		overrides.window_background_opacity = 0.9
+		overrides.window_background_opacity = 0.95
 	else
 		overrides.window_background_opacity = 0.6
 	end
@@ -115,9 +117,30 @@ wezterm.on("theme-picker", function(window, pane)
 					return
 				end
 
-				local overrides = win:get_config_overrides() or {}
-				overrides.color_scheme = label
-				win:set_config_overrides(overrides)
+                local overrides = win:get_config_overrides() or {}
+                overrides.color_scheme = label
+
+                local scheme = wezterm.color.get_builtin_schemes()[label]
+
+                if scheme then
+                overrides.colors = {
+                    tab_bar = {
+                    background = "NONE",
+
+                    active_tab = {
+                        bg_color = "NONE",
+                        fg_color = scheme.ansi[6],
+                    },
+
+                    inactive_tab = {
+                        bg_color = "NONE",
+                        fg_color = scheme.ansi[8],
+                    },
+                    },
+                }
+                end
+
+                win:set_config_overrides(overrides)
 				win:perform_action(wezterm.action.ReloadConfiguration, pane)
 
 				local nvim_theme = nvim_theme_map[label]
@@ -157,12 +180,12 @@ return {
     --------------------
     -- DARK MODE
     --------------------
-	color_scheme = "Catppuccin Mocha",
+	-- color_scheme = "Catppuccin Mocha",
 	-- color_scheme = "Rebecca (base16)",
 	-- color_scheme = "Rosé Pine Moon (base16)",
     -- color_scheme = "nordfox",
     -- color_scheme = 'Everforest Dark (Gogh)',
-	-- color_scheme = "Gruvbox Dark (base16)",
+	color_scheme = "Gruvbox dark, hard (base16)",
 
     --------------------
     -- LIGHT MODE
@@ -208,21 +231,8 @@ return {
         action = act.EmitEvent("theme-picker"),
         },
 	},
-
-	colors = {
-		tab_bar = {
-            background = "NONE",
-			active_tab = {
-				bg_color = "NONE",
-				fg_color = "#cba6f7",
-			},
-			inactive_tab = {
-				bg_color = "NONE",
-				fg_color = "#b4befe",
-			},
-		},
-	},
 }
+
 
 
 
