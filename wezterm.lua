@@ -1,15 +1,88 @@
 
 
+
+
 local wezterm = require("wezterm")
 local act = wezterm.action
+
+-- Map wezterm color_scheme name -> neovim colorscheme name.
+-- Edit the right-hand side to match whatever colorscheme plugins you have
+-- installed in neovim.
+local nvim_theme_map = {
+    ["Catppuccin Mocha"] = {
+        nvim = "catppuccin-mocha",
+        background = "dark",
+        focused = 0.75,
+        unfocused = 0.55,
+    },
+    ["Rebecca (base16)"] = {
+        nvim = "base16-rebecca",
+        background = "dark",
+        focused = 0.95,
+        unfocused = 0.70,
+    },
+    ["Rosé Pine Moon (base16)"] = {
+        nvim = "rose-pine-moon",
+        background = "dark",
+        focused = 0.85,
+        unfocused = 0.65,
+    },
+    ["nordfox"] = {
+        nvim = "nord",
+        background = "dark",
+        focused = 0.85,
+        unfocused = 0.70,
+    },
+    ["Everforest Dark (Gogh)"] = {
+        nvim = "everforest",
+        background = "dark",
+        focused = 0.85,
+        unfocused = 0.70,
+    },
+    ["Gruvbox dark, hard (base16)"] = {
+        nvim = "gruvbox-material",
+        background = "dark",
+        focused = 0.95,
+        unfocused = 0.80,
+    },
+    ["Gruvbox light, medium (base16)"] = {
+        nvim = "gruvbox",
+        background = "light",
+        focused = 0.95,
+        unfocused = 0.85,
+    },
+    ["Catppuccin Latte"] = {
+        nvim = "catppuccin-latte",
+        background = "light",
+        focused = 0.95,
+        unfocused = 0.85,
+    },
+    ["tokyonight-storm"] = {
+        nvim = "tokyonight",
+        background = "dark",
+        focused = 0.95,
+        unfocused = 0.70,
+    },
+    ["nightfox"] = {
+        nvim = "night-owl",
+        background = "dark",
+        focused = 0.95,
+        unfocused = 0.70,
+    },
+}
 
 wezterm.on("window-focus-changed", function(window, pane)
 	local overrides = window:get_config_overrides() or {}
 
-	if window:is_focused() then
-		overrides.window_background_opacity = 0.95
-	else
-		overrides.window_background_opacity = 0.6
+	local theme_name = overrides.color_scheme or "Gruvbox dark, hard (base16)"
+	local theme = nvim_theme_map[theme_name]
+
+	if theme then
+		if window:is_focused() then
+			overrides.window_background_opacity = theme.focused
+		else
+			overrides.window_background_opacity = theme.unfocused
+		end
 	end
 
 	window:set_config_overrides(overrides)
@@ -29,21 +102,6 @@ wezterm.on("smart-cmd-o", function(window, pane)
 		pane
 	)
 end)
-
--- Map wezterm color_scheme name -> neovim colorscheme name.
--- Edit the right-hand side to match whatever colorscheme plugins you have
--- installed in neovim.
-local nvim_theme_map = {
-	["Catppuccin Mocha"] = "catppuccin-mocha",
-	["Rebecca (base16)"] = "base16-rebecca",
-	["Rosé Pine Moon (base16)"] = "rose-pine-moon",
-	["nordfox"] = "nord",
-	["Everforest Dark (Gogh)"] = "everforest",
-	["Gruvbox dark, hard (base16)"] = "gruvbox-material",
-	["Github"] = "github_light_high_contrast",
-	["tokyonight-storm"] = "tokyonight",
-    ["nightfox"] = "night-owl"
-}
 
 local theme_state_file = os.getenv("HOME") .. "/.cache/wezterm-nvim-theme"
 
@@ -80,15 +138,22 @@ end)
 
 -- Push the colorscheme change into every currently running nvim pane,
 -- across all tabs and windows.
-local function sync_nvim_panes(nvim_theme)
+local function sync_nvim_panes(theme)
 	local mux = wezterm.mux
+
 	for _, mux_win in ipairs(mux.all_windows()) do
 		for _, tab in ipairs(mux_win:tabs()) do
 			for _, pane in ipairs(tab:panes()) do
 				local process = pane:get_foreground_process_name() or ""
+
 				if process:match("[/\\]n?vim$") then
-					-- Esc to leave insert/visual mode, run the command, then Enter
-					pane:send_text("\x1b:colorscheme " .. nvim_theme .. "\r")
+					pane:send_text(
+						"\x1b:set background="
+							.. theme.background
+							.. " | colorscheme "
+							.. theme.nvim
+							.. "\r"
+					)
 				end
 			end
 		end
@@ -120,6 +185,16 @@ wezterm.on("theme-picker", function(window, pane)
                 local overrides = win:get_config_overrides() or {}
                 overrides.color_scheme = label
 
+                local theme = nvim_theme_map[label]
+
+                if theme then
+                    if win:is_focused() then
+                        overrides.window_background_opacity = theme.focused
+                    else
+                        overrides.window_background_opacity = theme.unfocused
+                    end
+                end
+
                 local scheme = wezterm.color.get_builtin_schemes()[label]
 
                 if scheme then
@@ -143,11 +218,12 @@ wezterm.on("theme-picker", function(window, pane)
                 win:set_config_overrides(overrides)
 				win:perform_action(wezterm.action.ReloadConfiguration, pane)
 
-				local nvim_theme = nvim_theme_map[label]
-				if nvim_theme then
-					write_theme_state(nvim_theme)
-					sync_nvim_panes(nvim_theme)
-				end
+                local theme = nvim_theme_map[label]
+
+                if theme then
+                    write_theme_state(theme.nvim)
+                    sync_nvim_panes(theme)
+                end
 			end),
 		}),
 		pane
@@ -230,8 +306,14 @@ return {
         mods = "CMD|SHIFT",
         action = act.EmitEvent("theme-picker"),
         },
+        {
+        key = 'c',
+        mods = 'CMD',
+        action = wezterm.action.ActivateCopyMode,
+        },
 	},
 }
+
 
 
 
