@@ -290,6 +290,7 @@ return {
 		{ key = "K", mods = "CMD|SHIFT", action = act.AdjustPaneSize({ "Up", 5 }) },
 		{ key = "J", mods = "CMD|SHIFT", action = act.AdjustPaneSize({ "Down", 5 }) },
 		{ key = "w", mods = "CMD", action = act.CloseCurrentPane({ confirm = false }) },
+        { key = "s", mods = "CMD", action = act.PaneSelect({ mode = "SwapWithActiveKeepFocus" }) },
 		-- Clear terminal
 		{
 			key = "o",
