@@ -1,7 +1,3 @@
-
-
-
-
 local wezterm = require("wezterm")
 local act = wezterm.action
 local saved_theme = "Embers (dark) (terminal.sexy)"
@@ -110,49 +106,49 @@ local nvim_theme_map = {
     },
 }
 
-local initial_theme = nvim_theme_map[saved_theme]
-local initial_scheme = wezterm.color.get_builtin_schemes()[saved_theme]
+local function apply_theme(window, theme_name)
+	local theme = nvim_theme_map[theme_name]
+	local scheme = wezterm.color.get_builtin_schemes()[theme_name]
 
-local initial_colors = nil
+	if not theme or not scheme then
+		return
+	end
 
-if initial_scheme then
-	initial_colors = {
-		cursor_bg = initial_scheme.ansi[8],
-		cursor_border = initial_scheme.ansi[8],
-		cursor_fg = initial_scheme.background,
+	local overrides = window:get_config_overrides() or {}
+
+	overrides.color_scheme = theme_name
+
+	overrides.window_background_opacity =
+		window:is_focused() and theme.focused or theme.unfocused
+
+	overrides.colors = {
+		cursor_bg = scheme.ansi[8],
+		cursor_border = scheme.ansi[8],
+		cursor_fg = scheme.background,
 
 		tab_bar = {
 			background = "NONE",
 
 			active_tab = {
 				bg_color = "NONE",
-				fg_color = initial_scheme.ansi[6],
+				fg_color = scheme.ansi[6],
 			},
 
 			inactive_tab = {
 				bg_color = "NONE",
-				fg_color = initial_scheme.ansi[8],
+				fg_color = scheme.ansi[8],
 			},
 		},
 	}
-end
-
-
-wezterm.on("window-focus-changed", function(window, pane)
-	local overrides = window:get_config_overrides() or {}
-
-    local theme_name = overrides.color_scheme or saved_theme
-	local theme = nvim_theme_map[theme_name]
-
-	if theme then
-		if window:is_focused() then
-			overrides.window_background_opacity = theme.focused
-		else
-			overrides.window_background_opacity = theme.unfocused
-		end
-	end
 
 	window:set_config_overrides(overrides)
+end
+
+wezterm.on("window-focus-changed", function(window)
+	local overrides = window:get_config_overrides() or {}
+	local theme_name = overrides.color_scheme or saved_theme
+
+	apply_theme(window, theme_name)
 end)
 
 wezterm.on("gui-startup", function(cmd)
@@ -268,44 +264,8 @@ wezterm.on("theme-picker", function(window, pane)
 				end
 
                 save_wezterm_theme(label)
+                apply_theme(win, label)
 
-                local overrides = win:get_config_overrides() or {}
-                overrides.color_scheme = label
-
-                local theme = nvim_theme_map[label]
-
-                if theme then
-                    if win:is_focused() then
-                        overrides.window_background_opacity = theme.focused
-                    else
-                        overrides.window_background_opacity = theme.unfocused
-                    end
-                end
-
-                local scheme = wezterm.color.get_builtin_schemes()[label]
-
-                if scheme then
-                overrides.colors = {
-                    cursor_bg = scheme.ansi[8],
-                    cursor_border = scheme.ansi[1],
-                    cursor_fg = scheme.background,
-                    tab_bar = {
-                    background = "NONE",
-
-                    active_tab = {
-                        bg_color = "NONE",
-                        fg_color = scheme.ansi[6],
-                    },
-
-                    inactive_tab = {
-                        bg_color = "NONE",
-                        fg_color = scheme.ansi[8],
-                    },
-                    },
-                }
-                end
-
-                win:set_config_overrides(overrides)
 				win:perform_action(wezterm.action.ReloadConfiguration, pane)
 
                 local theme = nvim_theme_map[label]
@@ -347,9 +307,8 @@ return {
     -- INITIAL THEME
     --------------------
     color_scheme = saved_theme,
-    colors = initial_colors,
 
-    window_background_opacity = initial_theme and initial_theme.focused or 1.0,
+    window_background_opacity = nvim_theme_map[saved_theme].focused,
 
 	window_frame = {
 		active_titlebar_bg = "rgba(0, 0, 0, 0)",
@@ -412,8 +371,3 @@ return {
         },
 	},
 }
-
-
-
-
-
