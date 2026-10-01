@@ -4,6 +4,33 @@
 
 local wezterm = require("wezterm")
 local act = wezterm.action
+local saved_theme = "Embers (dark) (terminal.sexy)"
+
+local function save_wezterm_theme(theme)
+	local config_file = wezterm.config_file
+
+	local f = io.open(config_file, "r")
+	if not f then
+		return
+	end
+
+	local content = f:read("*a")
+	f:close()
+
+    local prefix = "local " .. "saved_theme = "
+
+    content = content:gsub(
+        prefix .. '"[^"]+"',
+        prefix .. '"' .. theme .. '"',
+        1
+    )
+
+	f = io.open(config_file, "w")
+	if f then
+		f:write(content)
+		f:close()
+	end
+end
 
 -- Map wezterm color_scheme name -> neovim colorscheme name.
 -- Edit the right-hand side to match whatever colorscheme plugins you have
@@ -39,6 +66,18 @@ local nvim_theme_map = {
         focused = 0.85,
         unfocused = 0.70,
     },
+    ['Embers (dark) (terminal.sexy)'] = {
+        nvim = "ember-soft",
+        background = "dark",
+        focused = 0.9,
+        unfocused = 0.80,
+    },
+    ['Embers (light) (terminal.sexy)'] = {
+        nvim = "ember-light",
+        background = "light",
+        focused = 0.9,
+        unfocused = 0.85,
+    },
     ["Gruvbox dark, hard (base16)"] = {
         nvim = "gruvbox-material",
         background = "dark",
@@ -71,10 +110,38 @@ local nvim_theme_map = {
     },
 }
 
+local initial_theme = nvim_theme_map[saved_theme]
+local initial_scheme = wezterm.color.get_builtin_schemes()[saved_theme]
+
+local initial_colors = nil
+
+if initial_scheme then
+	initial_colors = {
+		cursor_bg = initial_scheme.ansi[8],
+		cursor_border = initial_scheme.ansi[8],
+		cursor_fg = initial_scheme.background,
+
+		tab_bar = {
+			background = "NONE",
+
+			active_tab = {
+				bg_color = "NONE",
+				fg_color = initial_scheme.ansi[6],
+			},
+
+			inactive_tab = {
+				bg_color = "NONE",
+				fg_color = initial_scheme.ansi[8],
+			},
+		},
+	}
+end
+
+
 wezterm.on("window-focus-changed", function(window, pane)
 	local overrides = window:get_config_overrides() or {}
 
-	local theme_name = overrides.color_scheme or "Gruvbox dark, hard (base16)"
+    local theme_name = overrides.color_scheme or saved_theme
 	local theme = nvim_theme_map[theme_name]
 
 	if theme then
@@ -86,6 +153,23 @@ wezterm.on("window-focus-changed", function(window, pane)
 	end
 
 	window:set_config_overrides(overrides)
+end)
+
+wezterm.on("gui-startup", function(cmd)
+	local screen = wezterm.gui.screens().active
+
+	local width = math.floor(screen.width * 0.7)
+	local height = math.floor(screen.height * 0.95)
+
+	local tab, pane, window = wezterm.mux.spawn_window(cmd or {})
+	local gui = window:gui_window()
+
+	gui:set_inner_size(width, height)
+
+	gui:set_position(
+		screen.x + (screen.width - width) / 2,
+		screen.y + (screen.height - height) / 2
+	)
 end)
 
 -- Block the CMD+O keybinding from clearing the scrollback when in vim/neovim
@@ -113,11 +197,12 @@ local function write_theme_state(nvim_theme)
 	end
 end
 
-
-
-local wezterm = require("wezterm")
-
 wezterm.on("format-tab-title", function(tab)
+  -- Prefer a manually assigned tab name
+  if tab.tab_title and #tab.tab_title > 0 then
+    return " " .. tab.tab_title .. " "
+  end
+
   local proc = tab.active_pane.foreground_process_name or ""
 
   -- Only customize tabs running nvim
@@ -182,6 +267,8 @@ wezterm.on("theme-picker", function(window, pane)
 					return
 				end
 
+                save_wezterm_theme(label)
+
                 local overrides = win:get_config_overrides() or {}
                 overrides.color_scheme = label
 
@@ -199,6 +286,9 @@ wezterm.on("theme-picker", function(window, pane)
 
                 if scheme then
                 overrides.colors = {
+                    cursor_bg = scheme.ansi[8],
+                    cursor_border = scheme.ansi[1],
+                    cursor_fg = scheme.background,
                     tab_bar = {
                     background = "NONE",
 
@@ -234,7 +324,7 @@ return {
 	automatically_reload_config = true,
 	-- Window appearance
 	window_decorations = "RESIZE", -- hides the title bar buttons
-	macos_window_background_blur = 40, -- frosted glass effect
+	macos_window_background_blur = 30, -- frosted glass effect
 	hide_tab_bar_if_only_one_tab = true, -- hides tab bar when not needed
     show_tab_index_in_tab_bar = false,
 	tab_bar_at_bottom = true, -- moves the tab bar to the bottom of the window
@@ -254,23 +344,12 @@ return {
 	font_size = 17.0,
 
     --------------------
-    -- DARK MODE
+    -- INITIAL THEME
     --------------------
-	-- color_scheme = "Catppuccin Mocha",
-	-- color_scheme = "Rebecca (base16)",
-	-- color_scheme = "Rosé Pine Moon (base16)",
-    -- color_scheme = "nordfox",
-    -- color_scheme = 'Everforest Dark (Gogh)',
-	color_scheme = "Gruvbox dark, hard (base16)",
+    color_scheme = saved_theme,
+    colors = initial_colors,
 
-    --------------------
-    -- LIGHT MODE
-    --------------------
-	-- color_scheme = "Github",
-
-	-- Initial window size and position
-	initial_cols = 170,
-	initial_rows = 50,
+    window_background_opacity = initial_theme and initial_theme.focused or 1.0,
 
 	window_frame = {
 		active_titlebar_bg = "rgba(0, 0, 0, 0)",
@@ -290,7 +369,14 @@ return {
 		{ key = "K", mods = "CMD|SHIFT", action = act.AdjustPaneSize({ "Up", 5 }) },
 		{ key = "J", mods = "CMD|SHIFT", action = act.AdjustPaneSize({ "Down", 5 }) },
 		{ key = "w", mods = "CMD", action = act.CloseCurrentPane({ confirm = false }) },
-        { key = "s", mods = "CMD", action = act.PaneSelect({ mode = "SwapWithActiveKeepFocus" }) },
+        {
+            key = "s",
+            mods = "CMD",
+            action = act.PaneSelect({
+                mode = "SwapWithActiveKeepFocus",
+                alphabet = "hjkl",
+            }),
+        },
 		-- Clear terminal
 		{
 			key = "o",
@@ -311,6 +397,18 @@ return {
         key = 'c',
         mods = 'CMD',
         action = wezterm.action.ActivateCopyMode,
+        },
+        {
+            key = "r",
+            mods = "CMD|SHIFT",
+            action = act.PromptInputLine({
+                description = "Rename tab:",
+                action = wezterm.action_callback(function(window, pane, line)
+                    if line then
+                        window:active_tab():set_title(line)
+                    end
+                end),
+            }),
         },
 	},
 }
