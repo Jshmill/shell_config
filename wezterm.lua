@@ -69,6 +69,7 @@ local nvim_theme_map = {
     ["nordfox"] = {
         nvim = "nord",
         background = "dark",
+        wallpaper = "/Users/joshmiller/Desktop/nord.jpeg",
         focused = 0.85,
         unfocused = 0.70,
 
@@ -292,6 +293,12 @@ local function sync_nvim_panes(theme)
 	end
 end
 
+local function set_wallpaper(path)
+    os.execute(
+        'osascript -e \'tell application "System Events" to tell every desktop to set picture to "' .. path .. '"\''
+    )
+end
+
 wezterm.on("theme-picker", function(window, pane)
     local dark = {}
     local light = {}
@@ -337,6 +344,10 @@ wezterm.on("theme-picker", function(window, pane)
                 apply_theme(win, id)
 
                 local theme = nvim_theme_map[id]
+
+                if theme and theme.wallpaper then
+                    set_wallpaper(theme.wallpaper)
+                end
 
                 if theme then
                     write_theme_state(theme.nvim)
