@@ -1,6 +1,6 @@
 local wezterm = require("wezterm")
 local act = wezterm.action
-local saved_theme = "Embers (dark) (terminal.sexy)"
+local saved_theme = "nordfox"
 
 local function save_wezterm_theme(theme)
 	local config_file = wezterm.config_file
@@ -37,72 +37,119 @@ local nvim_theme_map = {
         background = "dark",
         focused = 0.75,
         unfocused = 0.55,
-    },
-    ["Rebecca (base16)"] = {
-        nvim = "base16-rebecca",
-        background = "dark",
-        focused = 0.95,
-        unfocused = 0.70,
+
+        ansi = {
+            "#1e1e2e", -- 1 black:      background / very dark
+            "#f38ba8", -- 2 red:        errors
+            "#a6e3a1", -- 3 green:      strings / added
+            "#f9e2af", -- 4 yellow:     functions / types / warnings
+            "#89b4fa", -- 5 blue:       info / links / attributes
+            "#cba6f7", -- 6 magenta:    keywords / tags / accent
+            "#89dceb", -- 7 cyan:       methods / hints
+            "#f5e0dc", -- 8 white:      variables / properties
+        },
     },
     ["Rosé Pine Moon (base16)"] = {
         nvim = "rose-pine-moon",
         background = "dark",
         focused = 0.85,
         unfocused = 0.65,
+
+        ansi = {
+            "#232136", -- 1 black:      background / very dark
+            "#eb6f92", -- 2 red:        errors
+            "#f6c177", -- 3 green:      strings / added
+            "#ea9a97", -- 4 yellow:     functions / types / warnings
+            "#3e8fb0", -- 5 blue:       info / links / attributes
+            "#c4a7e7", -- 6 magenta:    keywords / tags / accent
+            "#9ccfd8", -- 7 cyan:       methods / hints
+            "#e0def4", -- 8 white:      variables / properties
+        },
     },
     ["nordfox"] = {
         nvim = "nord",
         background = "dark",
         focused = 0.85,
         unfocused = 0.70,
+
+        ansi = {
+            "#3b4252", -- 1 black:      background / very dark
+            "#bf616a", -- 2 red:        errors
+            "#a3be8c", -- 3 green:      strings / added
+            "#ebcb8b", -- 4 yellow:     functions / types / warnings
+            "#81a1c1", -- 5 blue:       info / links / attributes
+            "#b48ead", -- 6 magenta:    keywords / tags / accent
+            "#88c0d0", -- 7 cyan:       methods / hints
+            "#e5e9f0", -- 8 white:      variables / properties
+        },
     },
     ["Everforest Dark (Gogh)"] = {
         nvim = "everforest",
         background = "dark",
-        focused = 0.85,
-        unfocused = 0.70,
+        focused = 0.9,
+        unfocused = 0.75,
+
+        ansi = {
+            "#3c4841", -- 1 black:      background / very dark
+            "#e67e80", -- 2 red:        errors
+            "#a7c080", -- 3 green:      strings / added
+            "#dbbc7f", -- 4 yellow:     functions / types / warnings
+            "#7fbbb3", -- 5 blue:       info / links / attributes
+            "#d699b6", -- 6 magenta:    keywords / tags / accent
+            "#83c092", -- 7 cyan:       methods / hints
+            "#d3c6aa", -- 8 white:      variables / properties
+        },
     },
     ['Embers (dark) (terminal.sexy)'] = {
         nvim = "ember-soft",
         background = "dark",
-        focused = 0.9,
+        focused = 0.95,
         unfocused = 0.80,
+
+        ansi = {
+            "#242320", -- 1 black:      background / very dark
+            "#b07878", -- 2 red:        errors
+            "#8a9868", -- 3 green:      strings / added
+            "#c8b468", -- 4 yellow:     functions / types / warnings
+            "#7890a0", -- 5 blue:       info / links / attributes
+            "#e08060", -- 6 magenta:    keywords / tags / accent
+            "#80a090", -- 7 cyan:       methods / hints
+            "#b0a898", -- 8 white:      variables / properties
+        },
     },
     ['Embers (light) (terminal.sexy)'] = {
         nvim = "ember-light",
         background = "light",
-        focused = 0.9,
-        unfocused = 0.85,
-    },
-    ["Gruvbox dark, hard (base16)"] = {
-        nvim = "gruvbox-material",
-        background = "dark",
-        focused = 0.95,
-        unfocused = 0.80,
-    },
-    ["Gruvbox light, medium (base16)"] = {
-        nvim = "gruvbox",
-        background = "light",
         focused = 0.95,
         unfocused = 0.85,
+
+        ansi = {
+            "#e6dac4", -- 1 black:      background / very dark
+            "#905050", -- 2 red:        errors
+            "#4a6830", -- 3 green:      strings / added
+            "#7a6820", -- 4 yellow:     functions / types / warnings
+            "#3a6080", -- 5 blue:       info / links / attributes
+            "#b84c30", -- 6 magenta:    keywords / tags / accent
+            "#386858", -- 7 cyan:       methods / hints
+            "#282418", -- 8 white:      variables / properties
+        },
     },
     ["Catppuccin Latte"] = {
         nvim = "catppuccin-latte",
         background = "light",
         focused = 0.95,
         unfocused = 0.85,
-    },
-    ["tokyonight-storm"] = {
-        nvim = "tokyonight",
-        background = "dark",
-        focused = 0.95,
-        unfocused = 0.70,
-    },
-    ["nightfox"] = {
-        nvim = "night-owl",
-        background = "dark",
-        focused = 0.95,
-        unfocused = 0.70,
+
+        ansi = { --TODO:
+            "#242320", -- 1 black:      background / very dark
+            "#b07878", -- 2 red:        errors
+            "#8a9868", -- 3 green:      strings / added
+            "#c8b468", -- 4 yellow:     functions / types / warnings
+            "#7890a0", -- 5 blue:       info / links / attributes
+            "#e08060", -- 6 magenta:    keywords / tags / accent
+            "#80a090", -- 7 cyan:       methods / hints
+            "#b0a898", -- 8 white:      variables / properties
+        },
     },
 }
 
@@ -121,8 +168,11 @@ local function apply_theme(window, theme_name)
 	overrides.window_background_opacity =
 		window:is_focused() and theme.focused or theme.unfocused
 
-	overrides.colors = {
-		cursor_bg = scheme.ansi[8],
+    overrides.colors = {
+        background = theme.ansi[1],
+        ansi = theme.ansi or scheme.ansi,
+
+        cursor_bg = theme.ansi[8],
 		cursor_border = scheme.ansi[8],
 		cursor_fg = scheme.background,
 
@@ -131,12 +181,12 @@ local function apply_theme(window, theme_name)
 
 			active_tab = {
 				bg_color = "NONE",
-				fg_color = scheme.ansi[6],
+				fg_color = theme.ansi[6],
 			},
 
 			inactive_tab = {
 				bg_color = "NONE",
-				fg_color = scheme.ansi[8],
+				fg_color = theme.ansi[8],
 			},
 		},
 	}
@@ -227,6 +277,7 @@ local function sync_nvim_panes(theme)
 			for _, pane in ipairs(tab:panes()) do
 				local process = pane:get_foreground_process_name() or ""
 
+                -- Reset terminal colors for hung panes
 				if process:match("[/\\]n?vim$") then
 					pane:send_text(
 						"\x1b:set background="
@@ -242,33 +293,50 @@ local function sync_nvim_panes(theme)
 end
 
 wezterm.on("theme-picker", function(window, pane)
-	local choices = {}
-	for name, _ in pairs(nvim_theme_map) do
-		table.insert(choices, name)
-	end
-	table.sort(choices)
+    local dark = {}
+    local light = {}
 
-	local formatted_choices = {}
-	for _, name in ipairs(choices) do
-		table.insert(formatted_choices, { label = name })
-	end
+    for name, theme in pairs(nvim_theme_map) do
+        if theme.background == "light" then
+            table.insert(light, name)
+        else
+            table.insert(dark, name)
+        end
+    end
+
+    table.sort(dark)
+    table.sort(light)
+
+    local formatted_choices = {}
+
+    for _, name in ipairs(dark) do
+        table.insert(formatted_choices, {
+            label = "󰖔  " .. name,
+            id = name,
+        })
+    end
+
+    for _, name in ipairs(light) do
+        table.insert(formatted_choices, {
+            label = "󰖙  " .. name,
+            id = name,
+        })
+    end
 
 	window:perform_action(
 		act.InputSelector({
 			title = "Select Theme",
-			fuzzy = true,
+			fuzzy = false,
 			choices = formatted_choices,
-			action = wezterm.action_callback(function(win, _, _, label)
-				if not label then
+            action = wezterm.action_callback(function(win, _, id, _)
+				if not id then
 					return
 				end
 
-                save_wezterm_theme(label)
-                apply_theme(win, label)
+                save_wezterm_theme(id)
+                apply_theme(win, id)
 
-				win:perform_action(wezterm.action.ReloadConfiguration, pane)
-
-                local theme = nvim_theme_map[label]
+                local theme = nvim_theme_map[id]
 
                 if theme then
                     write_theme_state(theme.nvim)
